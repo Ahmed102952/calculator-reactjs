@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Header from "./components/Header";
 import Display from "./components/Display";
 import Keys from "./components/Keys";
@@ -9,31 +9,38 @@ function App() {
   const [total, setTotal] = useState<null | number>(null);
   const [previousOperator, setPreviousOperator] = useState<null | string>(null);
 
+  useEffect(() => {
+    // handle theme change
+    if (theme === 0) {
+      document.documentElement.classList.remove("dark");
+    } else {
+      document.documentElement.classList.add("dark");
+    }
+  }, [theme]);
+
   const handleTheme = useCallback((theme: number) => {
     //handle theme change
     if (theme === 0) {
       setTheme(1);
-      document.body.classList.add("dark");
       return;
     }
     setTheme(0);
-    document.body.classList.remove("dark");
   }, []);
+
   const handleNumber = useCallback(
     (value: string) => {
-      //handle number Click
-      if (buffer === "0") {
-        setBuffer(value);
-      } else if (previousOperator === "=") {
+      // handle number Click
+      if (previousOperator === "=") {
         setBuffer(value);
         setTotal(null);
         setPreviousOperator(null);
       } else {
-        setBuffer(buffer + value);
+        setBuffer(buffer === "0" ? value : buffer + value);
       }
     },
-    [buffer],
+    [buffer, previousOperator],
   );
+
   const handleOp = useCallback(
     (value: string) => {
       //handle operator click
@@ -116,8 +123,8 @@ function App() {
   }, []);
 
   return (
-    <main className="min-w-screen min-h-screen bg-background dark:bg-gray-800 pt-[2vh] transition-all duration-300 ">
-      <div className="mx-auto w-full max-w-sm rounded-3xl bg-white dark:bg-bg-dark bg-opacity-30 px-7 py-9 dark:shadow-black/70 shadow-md shadow-lightBlue">
+    <main className="min-w-screen min-h-screen bg-background pt-[2vh] transition-all duration-300 dark:bg-gray-800 ">
+      <div className="mx-auto w-full max-w-sm rounded-3xl bg-white bg-opacity-30 px-7 py-9 shadow-md shadow-lightBlue dark:bg-bg-dark dark:shadow-black/70">
         <Header theme={theme} changeTheme={handleTheme} />
         <Display buffer={buffer} />
         <div className="py-10">
